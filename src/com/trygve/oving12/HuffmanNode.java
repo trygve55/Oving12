@@ -1,6 +1,7 @@
 package com.trygve.oving12;
 
 public class HuffmanNode {
+    private boolean bit;
     private byte value;
     private int freq;
     private HuffmanNode leftNode;
@@ -35,13 +36,18 @@ public class HuffmanNode {
         return rightNode;
     }
 
+    public boolean isBit() {
+        return bit;
+    }
+
+    public void setBit(boolean bit) {
+        this.bit = bit;
+    }
+
     @Override
     public String toString() {
         return "HuffmanNode{" +
                 "value=" + value +
-                ", freq=" + freq +
-                ", leftNode=" + leftNode +
-                ", rightNode=" + rightNode +
-                '}';
+                "freq=" + freq;
     }
 }
