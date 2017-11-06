@@ -1,8 +1,5 @@
 package com.trygve.oving12;
 
-/**
- * Created by Trygve on 06.11.2017.
- */
 public class HuffmanNode {
     private byte value;
     private int freq;
@@ -14,5 +11,21 @@ public class HuffmanNode {
         this.freq = freq;
         this.leftNode = leftNode;
         this.rightNode = rightNode;
+    }
+
+    public byte getValue() {
+        return value;
+    }
+
+    public int getFreq() {
+        return freq;
+    }
+
+    public HuffmanNode getLeftNode() {
+        return leftNode;
+    }
+
+    public HuffmanNode getRightNode() {
+        return rightNode;
     }
 }
