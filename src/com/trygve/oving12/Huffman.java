@@ -6,30 +6,38 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Huffman {
+    public static HuffmanNode getTree(byte[] inputByte) {
+        return getHuffmanTree(getFreqTable(inputByte));
+    }
+
     private static int[] getFreqTable(byte[] inputBytes) {
         int[] freq = new int[256];
 
         for (int i = 0;i < inputBytes.length;i++) {
-            freq[(int) inputBytes[i]]++;
+            freq[(int) inputBytes[i] & 0xFF]++;
         }
 
         return freq;
     }
 
     private static HuffmanNode getHuffmanTree(int[] freqTable) {
-        List<HuffmanNode> unusedNodes = new ArrayList<HuffmanNode>();
+        LinkedList nodes = new LinkedList();
         for (int i = 0; i < freqTable.length; i++) {
-            if (freqTable[i] > 0)unusedNodes.add(new HuffmanNode((byte) i , freqTable[i], null, null));
+            if (freqTable[i] > 0) nodes.add(new HuffmanNode((byte) i , freqTable[i], null, null));
         }
 
-        Collections.sort(unusedNodes, new Comparator<HuffmanNode>() {
-            @Override
-            public int compare(HuffmanNode node0, HuffmanNode node1) {
-                return node0.getFreq() > node1.getFreq() ? -1 : (node0.getFreq() < node1.getFreq()) ? 1 : 0;
-            }
-        });
+        while(nodes.size() > 1) {
+            HuffmanNode nodeLeft = nodes.popLowest();
+            HuffmanNode nodeRight = nodes.popLowest();
 
-        return unusedNodes.get(0);
+            System.out.println(nodeLeft);
+            System.out.println(nodeRight);
+
+            nodes.add(new HuffmanNode(nodeLeft.getFreq() + nodeRight.getFreq(), nodeLeft, nodeRight));
+
+        }
+
+        return nodes.popLowest();
     }
 
 }
