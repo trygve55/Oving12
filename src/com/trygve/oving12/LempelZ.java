@@ -2,9 +2,8 @@ package shrink;
 import java.util.ArrayList;
 
 public class LempelZ {
-	public static byte[] compress(String path) {
+	public static byte[] compress(byte[] data) {
 		ArrayList<Byte> out = new ArrayList<Byte>();
-		byte[] data = FileScanner.loadFile(path);
 		
 		byte unreplaced = 0;
 		for (int i = 0; i < data.length; i++) {
@@ -22,15 +21,16 @@ public class LempelZ {
 				}
 			}
 			if (found) {
-				//out.add([unreplaced]);
+				out.add(unreplaced);
 				for (int j = i - unreplaced - length; j < i - length; j++) {out.add(data[j]);}
 				unreplaced = 0;
-				//out.add([-length]);
-				//out.add([distance]);
+				out.add((byte)(-length));
+				out.add((byte)(distance & 0xff));
+				out.add((byte)(distance >> 8 & 0xff));
 			}
 			else {unreplaced++;}
 			if (unreplaced == 127) {
-				//out.add([unreplaced]);
+				out.add(unreplaced);
 				for (int j = i - unreplaced; j < i; j++) {out.add(data[j]);}
 				unreplaced = 0;
 			}
@@ -38,13 +38,13 @@ public class LempelZ {
 		return listToArray(out);
 	}
 	
-	public static byte[] deCompress(String path) {
+	public static byte[] decompress(byte[] data) {
 		ArrayList<Byte> out = new ArrayList<Byte>();
-		byte[] data = FileScanner.loadFile(path);
 		for (int i = 0; i < data.length;) {
 			byte x = data[i];
 			if (x < 0) {
-				for (int j = i - data[i + 1]; j < i - data[i + 1] + x; j++) {out.add(data[j]);}
+				short distance = (short)((data[i + 1]) | data[i + 2] << 8);
+				for (int j = i - distance; j < i - distance + x; j++) {out.add(data[j]);}
 			}
 			else {for (int j = 1; j < x; j++) {out.add(data[j]);}}
 			i += x;

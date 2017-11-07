@@ -1,4 +1,4 @@
-package com.trygve.oving12;
+package shrink;
 
 import java.io.IOException;
 import java.nio.file.Files;
