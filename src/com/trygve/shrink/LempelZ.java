@@ -5,26 +5,34 @@ public class LempelZ {
 	public static byte[] compress(byte[] data) {
 		ArrayList<Byte> out = new ArrayList<Byte>();
 		
-		byte unreplaced = 0;
-		for (int i = 0; i < data.length; i++) {
+		byte unreplaced = 1;
+		for (int i = 1; i < data.length; i++) {
 			boolean found = false;
 			short distance = 0;
-			byte length = 0;
-			for (distance = 1; distance <= i && distance < 32767; distance++) {
-				if (data[i - distance] == data[i]) {
+			byte lengthFound = 0;
+			for (short d = 1; d <= i && d < 32767; d++) {
+				if (data[i - d] == data[i]) {
 					int detected = 1;
-					for (length = 1; length <= i && length < 128; length++) {
-						if (data[i - length] == data[i - distance - length]) {detected++;}
+					byte length = 0;
+					for (length = 1; length <= i && length < 127; length++) {	// Exclude things already compressed!!!
+						if (i - d - length >= 0) {
+							if (data[i - length] == data[i - d - length]) {detected++;}
+							else {break;}
+						}
 						else {break;}
 					}
-					if (detected > 3) {found = true;}
+					if (detected > 3 && length > lengthFound) {
+						found = true;
+						lengthFound = length;
+						distance = d;
+					}
 				}
 			}
 			if (found) {
 				out.add(unreplaced);
-				for (int j = i - unreplaced - length; j < i - length; j++) {out.add(data[j]);}
+				for (int j = i - unreplaced; j < i - unreplaced + lengthFound && j < data.length; j++) {out.add(data[j]);}
 				unreplaced = 0;
-				out.add((byte)(-length));
+				out.add((byte)(-lengthFound));
 				out.add((byte)(distance & 0xff));
 				out.add((byte)(distance >> 8 & 0xff));
 			}
@@ -45,9 +53,13 @@ public class LempelZ {
 			if (x < 0) {
 				short distance = (short)((data[i + 1]) | data[i + 2] << 8);
 				for (int j = i - distance; j < i - distance + x; j++) {out.add(data[j]);}
+				i -= (int)x;
 			}
-			else {for (int j = 1; j < x; j++) {out.add(data[j]);}}
-			i += x;
+			else {
+				for (int j = 1; j < x; j++) {out.add(data[j]);}
+				i += (int)x;
+			}
+			if (x == 0) {i++;}	// Remove?
 		}
 		return listToArray(out);
 	}
