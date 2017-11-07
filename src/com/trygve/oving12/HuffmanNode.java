@@ -1,6 +1,7 @@
 package com.trygve.oving12;
 
 public class HuffmanNode {
+    private boolean bit;
     private byte value;
     private int freq;
     private HuffmanNode leftNode;
@@ -8,6 +9,12 @@ public class HuffmanNode {
 
     public HuffmanNode(byte value, int freq, HuffmanNode leftNode, HuffmanNode rightNode) {
         this.value = value;
+        this.freq = freq;
+        this.leftNode = leftNode;
+        this.rightNode = rightNode;
+    }
+
+    public HuffmanNode(int freq, HuffmanNode leftNode, HuffmanNode rightNode) {
         this.freq = freq;
         this.leftNode = leftNode;
         this.rightNode = rightNode;
@@ -27,5 +34,20 @@ public class HuffmanNode {
 
     public HuffmanNode getRightNode() {
         return rightNode;
+    }
+
+    public boolean isBit() {
+        return bit;
+    }
+
+    public void setBit(boolean bit) {
+        this.bit = bit;
+    }
+
+    @Override
+    public String toString() {
+        return "HuffmanNode{" +
+                "value=" + value +
+                "freq=" + freq;
     }
 }
