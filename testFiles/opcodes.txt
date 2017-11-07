@@ -1,0 +1,56 @@
+ 4bit opcode
+ 
+ 0000 
+ 0001 LOADR2	Load to register 2 from RAM adress v r
+ 0010 STORER1	Store from register 1 to RAM adress v s
+ 0011 STORER2	Store from register 2 to RAM adress v s
+ 0100 SUB		Subtracts register 1 and 2, saves to to RAM adress s
+ 0101 DIV		Divides register 1 and 2, saves to to RAM adress s
+ 0110 ADD		Adds register 1 and 2, saves to RAM adress v s
+ 0111 MULT		Multiplies register 1 and 2, saves to to RAM adress s
+ 1000 PUSHIO	Pushes content from RAM adress to IO 1 v r
+ 1001 PULLIO	Pulls content from IO to RAM adress v s
+ 1010 GOTO		Sets program counter to RAM adress
+ 1011 GOTOROM	Sets program counter to ROM adress v
+ 1100 COMPARE	Jumps to adress if register 1 and 2 is equal
+ 1101 LOADR1	Load to register 1 from RAM adress v r
+ 1110 LOADROMR1 Load from ROM adress to register 1 v 
+ 1111 LOADROMR2 Load from ROM adress to register 2 v
+ 
+ ROM
+ 
+ 0000 LOADROMR1	1110
+ 0001 LOADROMR2 1111
+ 0010 STORER1   0000
+ 0011 PUSHIO	0000 
+ 0100 STORER2	0000
+ 0101 PUSHIO	0000
+ 0110 ADD		0000
+ 0111 PUSHIO	0000
+ 1000 LOADR1	0000
+ 1001 ADD		0000
+ 1010 PUSHIO	0000
+ 1011 LOADR2	0000
+ 1100 GOTOROM	0110
+ 1101 
+ 1110 0000 0000
+ 1111 0000 0001
+ 
+ RAM
+ 
+ 0000 
+ 0001 
+ 0010 
+ 0011 
+ 0100 
+ 0101 
+ 0110 
+ 0111 
+ 1000 
+ 1001 
+ 1010 
+ 1011 
+ 1100 
+ 1101 
+ 1110 
+ 1111 

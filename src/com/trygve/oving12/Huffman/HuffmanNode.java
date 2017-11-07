@@ -1,4 +1,4 @@
-package com.trygve.oving12;
+package com.trygve.oving12.Huffman;
 
 public class HuffmanNode {
     private boolean bit;
