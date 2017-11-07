@@ -10,4 +10,11 @@ public class FileScanner {
 		try {return Files.readAllBytes(Paths.get(path));}
 		catch (IOException e) {return null;}
 	}
+	
+	// Write every byte to file.
+	public static boolean writeFile(String path, byte[] data) {
+		try {Files.write(Paths.get(path), data);}
+		catch (IOException e) {return false;}
+		return true;
+	}
 }
