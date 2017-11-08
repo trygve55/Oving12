@@ -1,65 +1,80 @@
-package com.trygve.oving12;
+package shrink;
 import java.util.ArrayList;
 
 public class LempelZ {
+	private static final int REFERENCE_BYTES = 3;
+	
 	public static byte[] compress(byte[] data) {
 		ArrayList<Byte> out = new ArrayList<Byte>();
 		
-		byte unreplaced = 1;
-		for (int i = 1; i < data.length; i++) {
+		byte unreplaced = REFERENCE_BYTES;
+		for (int i = REFERENCE_BYTES; i < data.length; i++) {
 			boolean found = false;
 			short distance = 0;
 			byte lengthFound = 0;
 			for (short d = 1; d <= i && d < 32767; d++) {
 				if (data[i - d] == data[i]) {
 					int detected = 1;
-					byte length = 0;
-					for (length = 1; length <= i && length < 127; length++) {	// Exclude things already compressed!!!
-						if (i - d - length >= 0) {
-							if (data[i - length] == data[i - d - length]) {detected++;}
+					int length = 0;
+					for (length = i - d; length < d && length < 128; length++) {
+						if (i + length < data.length) {
+							if (data[i + length] == data[i + length - d]) {detected++;}
 							else {break;}
 						}
 						else {break;}
 					}
-					if (detected > 3 && length > lengthFound) {
+					if (detected > REFERENCE_BYTES && length > lengthFound) {
 						found = true;
-						lengthFound = length;
+						lengthFound = (byte)length;
 						distance = d;
+						if (lengthFound == 127) {break;}
 					}
 				}
 			}
 			if (found) {
+				//System.out.println(i + " Found. " + unreplaced + " ,distance: " + distance + " ,length: " + lengthFound);
 				out.add(unreplaced);
-				for (int j = i - unreplaced; j < i - unreplaced + lengthFound && j < data.length; j++) {out.add(data[j]);}
+				for (int j = i - unreplaced; j < i; j++) {out.add(data[j]);}
 				unreplaced = 0;
-				out.add((byte)(-lengthFound));
+				out.add((byte)(-lengthFound));	// REFERENCE_BYTES.
 				out.add((byte)(distance & 0xff));
-				out.add((byte)(distance >> 8 & 0xff));
+				out.add((byte)((distance >> 8) & 0xff));
+				
+				//System.out.println("Byte data: " + -lengthFound + "," + (distance & 0xff | ((distance >> 8) & 0xff)));
+				i += lengthFound - 1;
 			}
 			else {unreplaced++;}
 			if (unreplaced == 127) {
 				out.add(unreplaced);
-				for (int j = i - unreplaced; j < i; j++) {out.add(data[j]);}
+				//System.out.println("Start: " + (i - unreplaced) + " ,End: " + i);
+				for (int j = i - unreplaced + 1; j < i; j++) {out.add(data[j]);}
 				unreplaced = 0;
 			}
 		}
 		return listToArray(out);
 	}
-	
+
 	public static byte[] decompress(byte[] data) {
 		ArrayList<Byte> out = new ArrayList<Byte>();
-		for (int i = 0; i < data.length;) {
+		for (int i = 0, iOut = 0; i < data.length; i++) {
 			byte x = data[i];
+			while (x == 0) {x = data[++i];}
 			if (x < 0) {
-				short distance = (short)((data[i + 1]) | data[i + 2] << 8);
-				for (int j = i - distance; j < i - distance + x; j++) {out.add(data[j]);}
-				i -= (int)x;
+				short distance = (short)(data[i + 1] | (data[i + 2] << 8));
+				int start = iOut;
+				for (int j = start - distance; j < start - distance - x; j++) {
+					out.add(out.get(j));
+					iOut++;
+				}
+				i += (REFERENCE_BYTES - 1);
 			}
 			else {
-				for (int j = 1; j < x; j++) {out.add(data[j]);}
+				for (int j = i + 1; j <= i + x; j++) {
+					out.add(data[j]);
+					iOut++;
+				}
 				i += (int)x;
 			}
-			if (x == 0) {i++;}	// Remove?
 		}
 		return listToArray(out);
 	}

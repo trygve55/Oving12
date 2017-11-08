@@ -1,4 +1,4 @@
-package com.trygve.oving12;
+package shrink;
 
 import java.io.File;
 
@@ -8,7 +8,7 @@ public class ZCompressClient {
 		File[] f = ClientCommon.readInput();
 		
 		byte[] data = null;
-		if (f[0].exists()) {data = LempelZ.compress(ClientCommon.FileScanner.loadFile(f[0].getPath()));}
+		if (f[0].exists()) {data = LempelZ.compress(FileScanner.loadFile(f[0].getPath()));}
 		else {System.out.println("Input file does not exist.");}
 		
 		ClientCommon.output(f[1], data);

@@ -1,9 +1,7 @@
-package com.trygve.oving12;
+package shrink;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 class ClientCommon {
@@ -26,19 +24,4 @@ class ClientCommon {
 			FileScanner.writeFile(f.getPath(), data);
 		}
 	}
-
-    public static class FileScanner {
-        // Read every byte of the file.
-        public static byte[] loadFile(String path) {
-            try {return Files.readAllBytes(Paths.get(path));}
-            catch (IOException e) {return null;}
-        }
-
-        // Write every byte to file.
-        public static boolean writeFile(String path, byte[] data) {
-            try {Files.write(Paths.get(path), data);}
-            catch (IOException e) {return false;}
-            return true;
-        }
-    }
 }
