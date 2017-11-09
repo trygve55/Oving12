@@ -2,6 +2,12 @@ package shrink;
 
 import java.io.File;
 
+/**
+ * Clients make the programs separate, like the task demands.
+ * 
+ * @author A.C.
+ * 
+ */
 public class ZDecompressClient {
 	public static void main(String[] args) {
 		System.out.println("Decompression.");

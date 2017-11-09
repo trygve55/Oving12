@@ -4,7 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Even though the task demands the programs to be separate, they do have much in common.
+ * Similar elements are gathered here.
+ * 
+ * @author A.C.
+ * 
+ */
 class ClientCommon {
+	/**
+	 * Which files to use?
+	 */
 	static File[] readInput() {
 		File[] f = new File[2];
 		Scanner s = new Scanner(System.in);
@@ -15,7 +25,10 @@ class ClientCommon {
 		s.close();
 		return f;
 	}
-	
+
+	/**
+	 * Put the result somewhere.
+	 */
 	static void output(File f, byte[] data) {
 		if (data == null) {return;}
 		if (f.exists()) {FileScanner.writeFile(f.getPath(), data);}
