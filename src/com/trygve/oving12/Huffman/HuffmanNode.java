@@ -4,6 +4,7 @@ public class HuffmanNode {
     private boolean bit;
     private byte value;
     private int freq;
+    private boolean newByte = false;
     private HuffmanNode leftNode;
     private HuffmanNode rightNode;
 
@@ -18,6 +19,14 @@ public class HuffmanNode {
         this.freq = freq;
         this.leftNode = leftNode;
         this.rightNode = rightNode;
+    }
+
+    public HuffmanNode(byte value, int freq, HuffmanNode leftNode, HuffmanNode rightNode, boolean newByte) {
+        this.value = value;
+        this.freq = freq;
+        this.leftNode = leftNode;
+        this.rightNode = rightNode;
+        this.newByte = newByte;
     }
 
     public byte getValue() {
@@ -38,6 +47,10 @@ public class HuffmanNode {
 
     public boolean isBit() {
         return bit;
+    }
+
+    public boolean isNewByte() {
+        return newByte;
     }
 
     public void setBit(boolean bit) {

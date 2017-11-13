@@ -9,11 +9,19 @@ public class HuffmanBitString {
     private byte aByte;
     private BitSet bitSet;
     private int bitLength;
+    private boolean newByte = false;
 
     public HuffmanBitString(byte aByte, BitSet bitSet, int bitLength) {
         this.aByte = aByte;
         this.bitSet = bitSet;
         this.bitLength = bitLength;
+    }
+
+    public HuffmanBitString(byte aByte, BitSet bitSet, int bitLength, boolean newByte) {
+        this.aByte = aByte;
+        this.bitSet = bitSet;
+        this.bitLength = bitLength;
+        this.newByte = newByte;
     }
 
     public byte getaByte() {
@@ -26,6 +34,10 @@ public class HuffmanBitString {
 
     public int length() {
         return bitLength;
+    }
+
+    public boolean isNewByte() {
+        return newByte;
     }
 
     @Override

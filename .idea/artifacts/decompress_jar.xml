@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="decompress.jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/decompress_jar</output-path>
+    <root id="archive" name="decompress.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/2/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Oving12" />
+    </root>
+  </artifact>
+</component>

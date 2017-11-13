@@ -1,5 +1,7 @@
 package com.trygve.oving12.Huffman;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class Huffman {
@@ -23,8 +25,12 @@ public class Huffman {
             }
         });
 
-        for (int i = 0; i < freq.length; i++) {
+        for (int i = 0; i < 256; i++) {
             if (freq[i] > 0) nodes.add(new HuffmanNode((byte) i, freq[i], null, null));
+        }
+
+        if (freq.length == 257) {
+            nodes.add(new HuffmanNode((byte) 0, freq[256], null, null, true));
         }
 
         while (nodes.size() > 1) {
@@ -74,31 +80,29 @@ public class Huffman {
         if (rootNode.getLeftNode().getLeftNode() != null) {
             getStrings(rootNode.getLeftNode(), bitSets, newBitSetLeft, depth + 1);
         } else {
-            bitSets.add(new HuffmanBitString(rootNode.getLeftNode().getValue(), newBitSetLeft, depth +1));
+            bitSets.add(new HuffmanBitString(rootNode.getLeftNode().getValue(), newBitSetLeft, depth +1, rootNode.getLeftNode().isNewByte()));
         }
 
         if (rootNode.getRightNode().getRightNode() != null) {
             getStrings(rootNode.getRightNode(), bitSets, newBitSetRight, depth + 1);
         } else {
-            bitSets.add(new HuffmanBitString(rootNode.getRightNode().getValue(), newBitSetRight, depth +1));
+            bitSets.add(new HuffmanBitString(rootNode.getRightNode().getValue(), newBitSetRight, depth +1, rootNode.getRightNode().isNewByte()));
         }
     }
 
     //Returns the Huffman encoded bytes from inputData.
     public static byte[] encode(byte[] inputData) {
+        int maxFreq = 0, max2Freq = 1, freqBits = 0, outIterator = 0, valueOut;
+        BitSet outData = new BitSet();
 
         int[] freq = getFreqTable(inputData);
-        List<HuffmanBitString> huffmanBitStrings = getHuffmanStrings(getHuffmanTree(freq));
 
-        int maxFreq = 0, max2Freq = 1, freqBits = 0, valueOut;
         for (int i = 0; i < freq.length; i++) if (freq[i] > maxFreq) maxFreq = freq[i];
+
         while (maxFreq > max2Freq) {
             freqBits++;
             max2Freq = max2Freq << 1;
         }
-
-        BitSet outData = new BitSet();
-        int outIterator = 0;
 
         int freqBitsWrite = freqBits;
         for (int i = 0; i < 8; i++) {
@@ -119,8 +123,11 @@ public class Huffman {
             }
         }
 
+        List<HuffmanBitString> huffmanBitStrings = getHuffmanStrings(getHuffmanTree(freq));
 
         HuffmanBitString currentHuffmanBitString;
+        BitSet bitSet;
+
         for (int i = 0; i < inputData.length; i++) {
             currentHuffmanBitString = null;
 
@@ -131,7 +138,7 @@ public class Huffman {
                 }
             }
 
-            BitSet bitSet = currentHuffmanBitString.getBitSet();
+            bitSet = currentHuffmanBitString.getBitSet();
 
             for (int j = 0; j < currentHuffmanBitString.length(); j++) {
                 if (bitSet.get(j)) outData.set(outIterator);
@@ -153,7 +160,7 @@ public class Huffman {
             inIterator++;
         }
 
-        int[] freq = new int[256];
+        int [] freq = new int[256];
 
         for (int i = 0; i < 256; i++) {
             for (int j = 0; j < freqBits; j++) {
@@ -162,9 +169,9 @@ public class Huffman {
             }
         }
 
-        HuffmanNode rootNode = getHuffmanTree(freq), currentNode;
-
         for (int i = 0; i < freq.length; i++) totalSize += freq[i];
+
+        HuffmanNode rootNode = getHuffmanTree(freq), currentNode;
 
         byte[] outputData = new byte[totalSize];
 
@@ -182,6 +189,157 @@ public class Huffman {
         }
 
         return outputData;
+    }
+
+    public static byte[] adaptiveEncode(byte[] inputData) {
+        int[] freq = new int[257];
+        int outIterator = 0;
+        BitSet outData = new BitSet(), bitSet;
+        List<HuffmanBitString> huffmanBitStrings = new ArrayList<HuffmanBitString>();
+        HuffmanBitString currentHuffmanBitString = null;
+
+        for (int inputIterator = 0; inputIterator < inputData.length; inputIterator++) {
+
+            if (freq[(int) inputData[inputIterator] & 0xFF] == 0) {
+                freq[256]++;
+                freq[(int) inputData[inputIterator] & 0xFF]++;
+                System.out.println("added to: " + (inputData[inputIterator] & 0xFF));
+                huffmanBitStrings = getHuffmanStrings(getHuffmanTree(freq));
+                System.out.println(huffmanBitStrings);
+
+                if (inputIterator != 0) {
+                    for (int j = 0; j < huffmanBitStrings.size(); j++) {
+                        if (huffmanBitStrings.get(j).isNewByte()) {
+                            currentHuffmanBitString = huffmanBitStrings.get(j);
+                            break;
+                        }
+                    }
+
+                    for (int k = 0; k < currentHuffmanBitString.length(); k++) {
+                        if (currentHuffmanBitString.getBitSet().get(k)) outData.set(outIterator);
+                        outIterator++;
+                    }
+                }
+
+                int inputByte = inputData[inputIterator];
+                System.out.println(inputByte);
+                for (int k = 0; k < 8; k++) {
+                    if (inputByte % 2 != 0) {
+                        outData.set(outIterator);
+                        System.out.print("1");
+                    } else {
+                        System.out.print("0");
+                    }
+                    inputByte = inputByte >>> 1;
+                    outIterator++;
+                }
+                System.out.println();
+
+            } else {
+                freq[(int) inputData[inputIterator] & 0xFF]++;
+            }
+
+            currentHuffmanBitString = null;
+
+
+            for (int j = 0; j < huffmanBitStrings.size(); j++) {
+                if (inputData[inputIterator] == huffmanBitStrings.get(j).getaByte()) {
+                    currentHuffmanBitString = huffmanBitStrings.get(j);
+                    break;
+                }
+            }
+
+            bitSet = currentHuffmanBitString.getBitSet();
+
+            for (int k = 0; k < currentHuffmanBitString.length(); k++) {
+                if (bitSet.get(k)) outData.set(outIterator);
+                outIterator++;
+            }
+        }
+
+        return outData.toByteArray();
+    }
+
+    public static byte[] adaptiveDecode(byte[] inputData) {
+        int[] freq = new int[257];
+        int outIterator = 0, inputIterator = 0;
+        BitSet inBitSet = BitSet.valueOf(inputData);
+        ArrayList<Byte> outData = new ArrayList<>();
+        HuffmanNode rootNode, currentNode;
+
+        for (int i = 0; i < inputData.length*8; i++) {
+            System.out.print((inBitSet.get(i) ? "1" : "0" ));
+        }
+        System.out.println();
+
+        freq[256]++;
+
+        int value = 0;
+        for (int i = 0; i < 8; i++) {
+            if (inBitSet.get(inputIterator)) {
+                value += 1 << i;
+                System.out.print("1");
+            } else System.out.print("0");
+            inputIterator++;
+        }
+        System.out.println();
+
+        freq[value]++;
+        rootNode = getHuffmanTree(freq);
+        outData.add((byte) value);
+        System.out.println("added: " + value + " " + (char)value);
+        List<HuffmanBitString> huffmanBitStrings = getHuffmanStrings(getHuffmanTree(freq));
+        System.out.println(huffmanBitStrings);
+
+        for (; inputIterator < inputData.length * 8; inputIterator++) {
+            currentNode = rootNode;
+            while (currentNode.getLeftNode() != null) {
+                if (inBitSet.get(inputIterator)) {
+                    currentNode = currentNode.getLeftNode();
+                } else {
+                    currentNode = currentNode.getRightNode();
+                }
+                inputIterator++;
+            }
+
+            if (currentNode.isNewByte()) {
+                value = 0;
+                for (int i = 0; i < 8; i++) {
+                    if (inBitSet.get(inputIterator)) {
+                        value += 1 << i;
+                        System.out.print("1");
+                    } else {
+                        System.out.print("0");
+                    }
+
+                    inputIterator++;
+
+                }
+                System.out.println();
+
+                freq[256]++;
+                freq[value]++;
+                rootNode = getHuffmanTree(freq);
+                outData.add((byte) value);
+                huffmanBitStrings = getHuffmanStrings(getHuffmanTree(freq));
+                System.out.println(huffmanBitStrings);
+
+                System.out.println("pos: " + inputIterator + " added: " + value + " " + (char)value);
+
+            } else {
+
+                freq[currentNode.getValue() & 0xFF]++;
+                System.out.println("value: " + (currentNode.getValue() & 0xFF));
+                outData.add(currentNode.getValue());
+            }
+        }
+
+        byte[] out = new byte[outData.size()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = outData.get(i);
+        }
+
+        return out;
     }
 
     private static int byteArrayToInt(byte[] b)
